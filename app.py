@@ -59,9 +59,20 @@ def require_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-@app.route('/retrieval', methods=['POST'])
+@app.route('/retrieval', methods=['GET', 'POST'])
 @require_auth
 def retrieval():
+    # Handle GET for Dify Cloud's initial check
+    if request.method == 'GET':
+        return jsonify({
+            'message': 'External Knowledge Base API is ready',
+            'endpoints': {
+                'retrieval': 'POST /retrieval - Perform semantic search',
+                'health': 'GET /health - Health check'
+            }
+        })
+
+    # POST request for actual retrieval
     """Dify external knowledge base retrieval endpoint"""
     if not embedder or not pc_client:
         return jsonify({'error': 'Service not properly initialized'}), 500
