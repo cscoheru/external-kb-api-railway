@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class QwenEmbedding:
-    def __init__(self, api_key: str, model: str = "text-embedding-v3"):
+    def __init__(self, api_key: str, model: str = "text-embedding-v2"):
         self.api_key = api_key
         self.model = model
         self.base_url = "https://dashscope.aliyuncs.com/api/v1/services/embeddings/text-embedding/text-embedding"
@@ -18,7 +18,10 @@ class QwenEmbedding:
             payload = {
                 'model': self.model,
                 'input': {'texts': [text]},
-                'parameters': {'text_type': 'document'}
+                'parameters': {
+                    'text_type': 'document',
+                    'embedding_type': 'float'
+                }
             }
             response = requests.post(
                 self.base_url,
