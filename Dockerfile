@@ -18,4 +18,6 @@ USER appuser
 
 EXPOSE 5002
 
-CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:5002", "--timeout", "60", "app:app"]
+# Get PORT from environment or default to 5002
+ENV PORT=5002
+CMD ["sh", "-c", "gunicorn -w 2 -b 0.0.0.0:$PORT --timeout 60 --access-logfile - --error-logfile - app:app"]
