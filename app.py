@@ -119,6 +119,42 @@ def health():
         'embedding': embedder is not None
     })
 
+@app.route('/admin/upload', methods=['POST'])
+def upload_document():
+    """Upload document to Pinecone (for testing)"""
+    if not embedder or not pc_client:
+        return jsonify({'error': 'Service not properly initialized'}), 500
+
+    try:
+        data = request.get_json()
+        content = data.get('content')
+        title = data.get('title', 'Untitled')
+        knowledge_id = data.get('knowledge_id', 'dify-knowledge')
+
+        if not content:
+            return jsonify({'error': 'content is required'}), 400
+
+        # Generate embedding
+        vector = embedder.embed_text(content)
+
+        # Upload to Pinecone
+        import uuid
+        pc_client.upsert(
+            vectors=[vector],
+            metadata=[{
+                'content': content,
+                'title': title,
+                'knowledge_id': knowledge_id,
+                'path': f'/documents/{knowledge_id}/{uuid.uuid4()}',
+                'description': f'Document: {title}'
+            }]
+        )
+
+        return jsonify({'status': 'success', 'message': 'Document uploaded'})
+    except Exception as e:
+        logger.error(f"Upload error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5002))
     app.run(host='0.0.0.0', port=port, debug=False)

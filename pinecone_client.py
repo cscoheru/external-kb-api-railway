@@ -22,3 +22,22 @@ class PineconeClient:
         except Exception as e:
             logger.error(f"Pinecone query error: {str(e)}")
             raise
+
+    def upsert(self, vectors: list, metadata: list):
+        """Upsert vectors with metadata to Pinecone"""
+        try:
+            import uuid
+            records = []
+            for i, (vector, meta) in enumerate(zip(vectors, metadata)):
+                records.append({
+                    'id': str(uuid.uuid4()),
+                    'values': vector,
+                    'metadata': meta
+                })
+
+            self.index.upsert(vectors=records)
+            logger.info(f"Upserted {len(records)} vectors to Pinecone")
+            return {'upserted_count': len(records)}
+        except Exception as e:
+            logger.error(f"Pinecone upsert error: {str(e)}")
+            raise
