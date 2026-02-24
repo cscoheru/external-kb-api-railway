@@ -6,6 +6,19 @@ from embedding_client import QwenEmbedding
 import logging
 
 app = Flask(__name__)
+
+# CORS support
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    return response
+
+@app.route('/', methods=['OPTIONS'])
+@app.route('/retrieval', methods=['OPTIONS'])
+def handle_options():
+    return '', 204
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
