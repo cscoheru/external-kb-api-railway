@@ -67,7 +67,16 @@ def retrieval():
         return jsonify({'error': 'Service not properly initialized'}), 500
 
     try:
-        data = request.get_json()
+        # Handle various Content-Type formats
+        content_type = request.headers.get('Content-Type', '')
+        logger.info(f"Request Content-Type: {content_type}")
+
+        # Try to get JSON data, handling different content types
+        data = request.get_json(force=True, silent=True)
+        if data is None:
+            # Try parsing manually if get_json fails
+            import json
+            data = json.loads(request.data.decode('utf-8'))
 
         knowledge_id = data.get('knowledge_id')
         query = data.get('query')
@@ -126,7 +135,11 @@ def upload_document():
         return jsonify({'error': 'Service not properly initialized'}), 500
 
     try:
-        data = request.get_json()
+        # Handle various Content-Type formats
+        data = request.get_json(force=True, silent=True)
+        if data is None:
+            import json
+            data = json.loads(request.data.decode('utf-8'))
         content = data.get('content')
         title = data.get('title', 'Untitled')
         knowledge_id = data.get('knowledge_id', 'dify-knowledge')
